@@ -1,0 +1,81 @@
+$ file Cryptomator-1.19.6-x86_64.AppImage && ls -la Cryptomator-1.19.6-x86_64.AppImage
+Cryptomator-1.19.6-x86_64.AppImage: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), static-pie linked, BuildID[sha1]=ef655b05ac26feebfd3bc24ec7ccb30389cefc33, stripped
+-rw-rw---- 1 root root 59075064 Nov  3 02:20 Cryptomator-1.19.6-x86_64.AppImage
+
+$ ./Cryptomator-1.19.6-x86_64.AppImage --appimage-version
+/bin/bash: line 6: ./Cryptomator-1.19.6-x86_64.AppImage: Permission denied
+exit code: 126
+
+$ timeout 30 ./Cryptomator-1.19.6-x86_64.AppImage --help 2>&1 | head -8   (a plain run, headless)
+timeout: failed to run command './Cryptomator-1.19.6-x86_64.AppImage': Permission denied
+(pipeline exit: 126)
+
+$ ./Cryptomator-1.19.6-x86_64.AppImage --appimage-extract > /dev/null && ls squashfs-root/
+
+$ ls squashfs-root/usr/lib/cryptomator/ 2>/dev/null || find squashfs-root -maxdepth 3 -name "*.jar" | head -5
+find: 'squashfs-root': No such file or directory
+
+$ timeout 30 squashfs-root/AppRun --help 2>&1 | head -12   (the extracted app, still headless)
+timeout: failed to run command 'squashfs-root/AppRun': No such file or directory
+(pipeline exit: 127)
+
+--- the download lacks the execute bit; set it and try again:
+
+$ chmod +x Cryptomator-1.19.6-x86_64.AppImage
+
+$ ./Cryptomator-1.19.6-x86_64.AppImage --appimage-version
+AppImage runtime version: https://github.com/AppImage/type2-runtime/commit/fedfad5
+exit code: 0
+
+$ timeout 30 ./Cryptomator-1.19.6-x86_64.AppImage --help 2>&1 | head -8   (a plain run, headless)
+fuse: device not found, try 'modprobe fuse' first
+
+Cannot mount AppImage, please check your FUSE setup.
+You might still be able to extract the contents of this AppImage 
+if you run it with the --appimage-extract option. 
+See https://github.com/AppImage/AppImageKit/wiki/FUSE 
+for more information
+open dir error: No such file or directory
+(pipeline exit: 127)
+
+$ ./Cryptomator-1.19.6-x86_64.AppImage --appimage-extract > /dev/null 2>&1; ls squashfs-root/
+AppRun
+bin
+lib
+org.cryptomator.Cryptomator.desktop
+org.cryptomator.Cryptomator.svg
+usr
+
+$ find squashfs-root -maxdepth 4 -name "*.jar" | head -6; ls squashfs-root/usr/lib/ 2>/dev/null
+squashfs-root/lib/app/httpcore-4.4.16.jar
+squashfs-root/lib/app/jackrabbit-webdav-2.22.5.jar
+squashfs-root/lib/app/mods/caffeine-3.3.1.jar
+squashfs-root/lib/app/mods/commons-lang3-3.21.0.jar
+squashfs-root/lib/app/mods/cryptofs-2.11.1.jar
+squashfs-root/lib/app/mods/cryptolib-2.4.0.jar
+
+$ timeout 30 squashfs-root/AppRun --help 2>&1 | head -12   (the extracted app, still headless)
+/usr/bin/dpkg
+02:25:45.641 [main] INFO  org.cryptomator.common.Environment - user.home: /root
+02:25:45.660 [main] INFO  org.cryptomator.common.Environment - java.library.path: :/home/hatch/workspace/cryptomator-labwork/squashfs-root/lib/app:/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib
+02:25:45.660 [main] INFO  org.cryptomator.common.Environment - user.language: en
+02:25:45.660 [main] INFO  org.cryptomator.common.Environment - user.region: null
+02:25:45.660 [main] INFO  org.cryptomator.common.Environment - logback.configurationFile: null
+02:25:45.660 [main] INFO  org.cryptomator.common.Environment - cryptomator.settingsPath: /root/.config/Cryptomator/settings.json:/root/.Cryptomator/settings.json
+02:25:45.660 [main] INFO  org.cryptomator.common.Environment - cryptomator.ipcSocketPath: /root/.config/Cryptomator/ipc.socket
+02:25:45.661 [main] INFO  org.cryptomator.common.Environment - cryptomator.integrationsWin.keychainPaths: null
+02:25:45.661 [main] INFO  org.cryptomator.common.Environment - cryptomator.integrationsWin.windowsHelloKeychainPaths: null
+02:25:45.661 [main] INFO  org.cryptomator.common.Environment - cryptomator.p12Path: /root/.config/Cryptomator/key.p12
+02:25:45.661 [main] INFO  org.cryptomator.common.Environment - cryptomator.logDir: /root/.local/share/Cryptomator/logs
+(pipeline exit: 1)
+
+--- the head of that run is startup logging; here is how it ends:
+
+$ timeout 30 squashfs-root/AppRun --help > apprun.log 2>&1; echo "exit code: $?"; tail -6 apprun.log
+exit code: 1
+	at javafx.graphics@25.0.5/com.sun.javafx.application.LauncherImpl.startToolkit(Unknown Source)
+	at javafx.graphics@25.0.5/com.sun.javafx.application.LauncherImpl.launchApplication1(Unknown Source)
+	at javafx.graphics@25.0.5/com.sun.javafx.application.LauncherImpl.lambda$launchApplication$0(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+02:25:56.269 [main] INFO  o.cryptomator.launcher.Cryptomator - Exit 1
+02:25:56.269 [IPC-0] INFO  org.cryptomator.ipc.Server - Closing server socket due to closed channel.

@@ -1,0 +1,54 @@
+$ export VAULT_PW=purple-lantern-42   (the throwaway lab passphrase)
+
+$ timeout 60 cryptomator-cli unlock --password: <redacted> --mounter=org.cryptomator.frontend.fuse.mount.LinuxFuseMountProvider --mountPoint=mnt vault
+org.cryptomator.cryptofs.ContentRootMissingException: The encrypted root directory of the vault /home/hatch/workspace/cryptomator-labwork/vault is missing.
+	at org.cryptomator.cryptofs@2.8.0/org.cryptomator.cryptofs.CryptoFileSystems.checkVaultRootExistence(CryptoFileSystems.java:82)
+	at org.cryptomator.cryptofs@2.8.0/org.cryptomator.cryptofs.CryptoFileSystems.create(CryptoFileSystems.java:56)
+	at org.cryptomator.cryptofs@2.8.0/org.cryptomator.cryptofs.CryptoFileSystemProvider.newFileSystem(CryptoFileSystemProvider.java:196)
+	at org.cryptomator.cryptofs@2.8.0/org.cryptomator.cryptofs.CryptoFileSystemProvider.newFileSystem(CryptoFileSystemProvider.java:86)
+	at java.base/java.nio.file.FileSystems.newFileSystem(Unknown Source)
+	at java.base/java.nio.file.FileSystems.newFileSystem(Unknown Source)
+	at org.cryptomator.cryptofs@2.8.0/org.cryptomator.cryptofs.CryptoFileSystemProvider.newFileSystem(CryptoFileSystemProvider.java:126)
+	at org.cryptomator.cli@0.6.2/org.cryptomator.cli.Unlock.call(Unlock.java:85)
+	at org.cryptomator.cli@0.6.2/org.cryptomator.cli.Unlock.call(Unlock.java:25)
+	at info.picocli@4.7.6/picocli.CommandLine.executeUserObject(CommandLine.java:2045)
+	at info.picocli@4.7.6/picocli.CommandLine.access$1500(CommandLine.java:148)
+	at info.picocli@4.7.6/picocli.CommandLine$RunLast.executeUserObjectOfLastSubcommandWithSameParent(CommandLine.java:2465)
+	at info.picocli@4.7.6/picocli.CommandLine$RunLast.handle(CommandLine.java:2457)
+	at info.picocli@4.7.6/picocli.CommandLine$RunLast.handle(CommandLine.java:2419)
+	at info.picocli@4.7.6/picocli.CommandLine$AbstractParseResultHandler.execute(CommandLine.java:2277)
+	at info.picocli@4.7.6/picocli.CommandLine$RunLast.execute(CommandLine.java:2421)
+	at org.cryptomator.cli@0.6.2/org.cryptomator.cli.CryptomatorCli.executionStrategy(CryptomatorCli.java:31)
+	at info.picocli@4.7.6/picocli.CommandLine.execute(CommandLine.java:2174)
+	at org.cryptomator.cli@0.6.2/org.cryptomator.cli.CryptomatorCli.main(CryptomatorCli.java:49)
+exit code: 1
+
+--- FUSE cannot work here (no /dev/fuse in this sandbox). The fallback
+--- mounter serves the same vault over WebDAV on loopback instead:
+
+$ nohup cryptomator-cli unlock --password: <redacted> --mounter=org.cryptomator.frontend.webdav.mount.FallbackMounter --loopbackPort=18091 vault > unlock-webdav.log 2>&1 &
+
+$ cat unlock-webdav.log
+org.cryptomator.cryptofs.ContentRootMissingException: The encrypted root directory of the vault /home/hatch/workspace/cryptomator-labwork/vault is missing.
+	at org.cryptomator.cryptofs@2.8.0/org.cryptomator.cryptofs.CryptoFileSystems.checkVaultRootExistence(CryptoFileSystems.java:82)
+	at org.cryptomator.cryptofs@2.8.0/org.cryptomator.cryptofs.CryptoFileSystems.create(CryptoFileSystems.java:56)
+	at org.cryptomator.cryptofs@2.8.0/org.cryptomator.cryptofs.CryptoFileSystemProvider.newFileSystem(CryptoFileSystemProvider.java:196)
+	at org.cryptomator.cryptofs@2.8.0/org.cryptomator.cryptofs.CryptoFileSystemProvider.newFileSystem(CryptoFileSystemProvider.java:86)
+	at java.base/java.nio.file.FileSystems.newFileSystem(Unknown Source)
+	at java.base/java.nio.file.FileSystems.newFileSystem(Unknown Source)
+	at org.cryptomator.cryptofs@2.8.0/org.cryptomator.cryptofs.CryptoFileSystemProvider.newFileSystem(CryptoFileSystemProvider.java:126)
+	at org.cryptomator.cli@0.6.2/org.cryptomator.cli.Unlock.call(Unlock.java:85)
+	at org.cryptomator.cli@0.6.2/org.cryptomator.cli.Unlock.call(Unlock.java:25)
+	at info.picocli@4.7.6/picocli.CommandLine.executeUserObject(CommandLine.java:2045)
+	at info.picocli@4.7.6/picocli.CommandLine.access$1500(CommandLine.java:148)
+	at info.picocli@4.7.6/picocli.CommandLine$RunLast.executeUserObjectOfLastSubcommandWithSameParent(CommandLine.java:2465)
+	at info.picocli@4.7.6/picocli.CommandLine$RunLast.handle(CommandLine.java:2457)
+	at info.picocli@4.7.6/picocli.CommandLine$RunLast.handle(CommandLine.java:2419)
+	at info.picocli@4.7.6/picocli.CommandLine$AbstractParseResultHandler.execute(CommandLine.java:2277)
+	at info.picocli@4.7.6/picocli.CommandLine$RunLast.execute(CommandLine.java:2421)
+	at org.cryptomator.cli@0.6.2/org.cryptomator.cli.CryptomatorCli.executionStrategy(CryptomatorCli.java:31)
+	at info.picocli@4.7.6/picocli.CommandLine.execute(CommandLine.java:2174)
+	at org.cryptomator.cli@0.6.2/org.cryptomator.cli.CryptomatorCli.main(CryptomatorCli.java:49)
+
+$ curl -s -X PROPFIND -H "Depth: 1" http://127.0.0.1:18091/
+

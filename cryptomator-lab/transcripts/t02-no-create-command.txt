@@ -1,0 +1,4 @@
+$ cryptomator-cli create vault
+Unmatched arguments from index 0: 'create', 'vault'
+Did you mean: cryptomator-cli list-mounters?
+exit code: 2

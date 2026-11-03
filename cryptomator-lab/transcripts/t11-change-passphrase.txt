@@ -1,0 +1,22 @@
+$ cp -r vault vault-pwchange
+$ javac -cp "$JARS" -d classes ChangePassword.java && java -cp "classes:$JARS" ChangePassword vault-pwchange/masterkey.cryptomator purple-lantern-42 purple-lantern-99
+passphrase changed for vault-pwchange/masterkey.cryptomator
+exit code: 0
+
+--- the copy now refuses its old passphrase:
+$ export VAULT_PW=purple-lantern-42
+$ timeout 60 cryptomator-cli unlock --password: <redacted> --mounter=org.cryptomator.frontend.webdav.mount.FallbackMounter --loopbackPort=18091 vault-pwchange
+org.cryptomator.cryptolib.api.InvalidPassphraseException
+(pipeline exit: 1)
+
+--- and opens with the new one:
+$ export VAULT_PW=purple-lantern-99
+$ nohup cryptomator-cli unlock --password: <redacted> --mounter=org.cryptomator.frontend.webdav.mount.FallbackMounter --loopbackPort=18091 vault-pwchange > unlock-pwchange.log 2>&1 &
+$ grep "Unlocked and mounted" unlock-pwchange.log
+[main] INFO  o.c.cli.Unlock - Unlocked and mounted vault successfully to http://localhost:18091/14401767-c254-4e22-8e42-6ec8723ac345 
+$ curl -s -o back/from-pwchange.txt http://localhost:18091/14401767-c254-4e22-8e42-6ec8723ac345/field-notes.txt && sha256sum plain/field-notes.txt back/from-pwchange.txt
+9652cd48cb4ac9e916a8ec46af1084d21ea20d9ccb4f66ae7fe31a00b32ace8c  plain/field-notes.txt
+9652cd48cb4ac9e916a8ec46af1084d21ea20d9ccb4f66ae7fe31a00b32ace8c  back/from-pwchange.txt
+
+$ kill -TERM $(cat unlock-pwchange.pid)
+done

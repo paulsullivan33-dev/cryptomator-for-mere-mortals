@@ -1,0 +1,33 @@
+site_name: Cryptomator for Mere Mortals
+site_description: "One folder that encrypts every file before it syncs. Creating a vault, unlocking it, adding and reading files, and proving with grep that names and contents are ciphertext — and the one rule that cannot be softened, because a forgotten vault password means lost data."
+site_url: https://paulsullivan33-dev.github.io/cryptomator-for-mere-mortals/
+copyright: Part of <a href="https://paulsullivan33-dev.github.io/mere-mortals/">For Mere Mortals</a> · Text <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, code MIT
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - What Cryptomator Is: what-cryptomator-is.md
+  - The Moving Parts: the-moving-parts.md
+  - Installing Cryptomator: installing-cryptomator.md
+  - Creating a Vault: creating-a-vault.md
+  - Unlocking and Mounting: unlocking-and-mounting.md
+  - The WebDAV Door: the-webdav-door.md
+  - Proving the Encryption: proving-the-encryption.md
+  - Passwords and Recovery: passwords-and-recovery.md
+  - A Vault Is Just a Folder: a-vault-is-just-a-folder.md
+  - Recipes: recipes.md
+  - The Neighbours: the-neighbours.md
+  - Limits: limits.md
+  - Troubleshooting: troubleshooting.md
+  - Glossary: glossary.md
+  - Writing Criteria: criteria.md

@@ -1,0 +1,22 @@
+$ cp -r vault vault-copy && find vault-copy -type f | sort
+vault-copy/d/7X/SLCHICG5CVCCVJW6EF7ZF2BXST2BSK/V9grweqazMopx9qsz1ioz1UYP-NxqsCrjOE=.c9r
+vault-copy/d/7X/SLCHICG5CVCCVJW6EF7ZF2BXST2BSK/dirid.c9r
+vault-copy/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/25rsnx3QH3p68Ru1k3ly1FrOcbY4aEUJnE1LOsxqpQ==.c9r
+vault-copy/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/dirid.c9r
+vault-copy/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/v4dCc8wyPfU5j9kdicAscvS-KbhvfcJyu5nNA_fl.c9r/dir.c9r
+vault-copy/masterkey.cryptomator
+vault-copy/vault.cryptomator
+vault-copy/vault.cryptomator.9ADD23A3.bkup
+
+$ export VAULT_PW=purple-lantern-42
+$ nohup cryptomator-cli unlock --password: <redacted> --mounter=org.cryptomator.frontend.webdav.mount.FallbackMounter --loopbackPort=18091 vault-copy > unlock-copy.log 2>&1 &
+
+$ grep "Unlocked and mounted" unlock-copy.log
+[main] INFO  o.c.cli.Unlock - Unlocked and mounted vault successfully to http://localhost:18091/1911f718-8c29-4af8-87a1-fd314e0c14cc 
+
+$ curl -s -o back/from-copy.txt http://localhost:18091/1911f718-8c29-4af8-87a1-fd314e0c14cc/field-notes.txt && sha256sum plain/field-notes.txt back/from-copy.txt
+9652cd48cb4ac9e916a8ec46af1084d21ea20d9ccb4f66ae7fe31a00b32ace8c  plain/field-notes.txt
+9652cd48cb4ac9e916a8ec46af1084d21ea20d9ccb4f66ae7fe31a00b32ace8c  back/from-copy.txt
+
+$ kill -TERM $(cat unlock-copy.pid)   (lock the copy again)
+done

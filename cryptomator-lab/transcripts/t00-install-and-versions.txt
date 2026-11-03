@@ -1,0 +1,21 @@
+$ java -version
+openjdk version "21.0.12.1" 2026-08-18
+OpenJDK Runtime Environment (build 21.0.12.1+1-1-24.04.4-Ubuntu)
+OpenJDK 64-Bit Server VM (build 21.0.12.1+1-1-24.04.4-Ubuntu, mixed mode, sharing)
+
+$ javac -version   (JDK installed for the lab only - see the creating chapter)
+javac 21.0.12.1
+
+$ sha256sum cryptomator-cli-0.6.2-linux-x64.zip
+6c2ac174f94a2ff30fdfa00ac43669703f1bca1fa633a762dc336bf9d794b1cb  cryptomator-cli-0.6.2-linux-x64.zip
+
+$ unzip -l cryptomator-cli-0.6.2-linux-x64.zip | tail -3
+    17688  2025-04-10 10:35   cryptomator-cli/bin/cryptomator-cli
+---------                     -------
+ 74634355                     152 files
+
+$ cli-dist/cryptomator-cli/bin/cryptomator-cli --version
+0.6.2
+
+$ curl -sL -o Cryptomator-1.19.6-x86_64.AppImage https://github.com/cryptomator/cryptomator/releases/download/1.19.6/Cryptomator-1.19.6-x86_64.AppImage && sha256sum Cryptomator-1.19.6-x86_64.AppImage
+a6167f6ab3c5f161b31726b94bcf0abcb7f78c857b16e485adeb8e5096b74acd  Cryptomator-1.19.6-x86_64.AppImage

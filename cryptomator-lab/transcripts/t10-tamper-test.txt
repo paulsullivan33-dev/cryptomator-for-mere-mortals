@@ -1,0 +1,25 @@
+$ cp -r vault vault-tampered
+$ F=vault-tampered/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/25rsnx3QH3p68Ru1k3ly1FrOcbY4aEUJnE1LOsxqpQ==.c9r   (the 335-byte ciphertext of field-notes.txt)
+$ printf '\\xff' | dd of=$F bs=1 seek=100 count=1 conv=notrunc  (flip one byte at offset 100)
+1+0 records in
+1+0 records out
+1 byte copied, 9.6875e-05 s, 10.3 kB/s
+
+$ export VAULT_PW=purple-lantern-42
+$ nohup cryptomator-cli unlock --password: <redacted> --mounter=org.cryptomator.frontend.webdav.mount.FallbackMounter --loopbackPort=18091 vault-tampered > unlock-tampered.log 2>&1 &
+
+$ BASE=http://localhost:18091/24ed23fe-d929-4d59-903b-824bd280e2a0
+$ curl -s -o /dev/null -w "%{http_code}\n" $BASE/field-notes.txt   (the tampered file)
+500
+$ curl -s -o back/from-tampered-readme.txt -w "%{http_code}\n" $BASE/garden-journal/readme.txt   (its untouched neighbour)
+200
+$ sha256sum plain/garden-journal/readme.txt back/from-tampered-readme.txt
+6ce731f3a794402b425f5fe5f0e307ed27c14ca2f748a3e3120d3647737bbb92  plain/garden-journal/readme.txt
+6ce731f3a794402b425f5fe5f0e307ed27c14ca2f748a3e3120d3647737bbb92  back/from-tampered-readme.txt
+
+$ grep -iE "exception|failed|mismatch|integrity" unlock-tampered.log | head -4
+Defaulting Uptime to NOIMPL due to (java.lang.UnsupportedOperationException) Implementation not available in this environment
+[webdav-005] WARN  o.e.j.s.HttpChannel - handleException /24ed23fe-d929-4d59-903b-824bd280e2a0/field-notes.txt java.io.IOException: org.cryptomator.cryptolib.api.AuthenticationFailedException: Authentication of chunk 0 failed. 
+
+$ kill -TERM $(cat unlock-tampered.pid)
+done

@@ -1,0 +1,61 @@
+$ export VAULT_PW=purple-lantern-42   (the throwaway lab passphrase)
+
+$ timeout 60 cryptomator-cli unlock --password: <redacted> --mounter=org.cryptomator.frontend.fuse.mount.LinuxFuseMountProvider --mountPoint=mnt vault
+	at org.cryptomator.cli@0.6.2/org.cryptomator.cli.CryptomatorCli.main(CryptomatorCli.java:49)
+Caused by: org.cryptomator.jfuse.api.FuseMountFailedException: fuse_mount failed
+	at org.cryptomator.jfuse.linux.amd64@0.7.3/org.cryptomator.jfuse.linux.amd64.FuseImpl.mount(FuseImpl.java:33)
+	at org.cryptomator.jfuse.api@0.7.3/org.cryptomator.jfuse.api.Fuse.mount(Fuse.java:126)
+	at org.cryptomator.frontend.fuse@5.0.5/org.cryptomator.frontend.fuse.mount.LinuxFuseMountProvider$LinuxFuseMountBuilder.mount(LinuxFuseMountProvider.java:134)
+	... 13 more
+(pipeline exit: 1)
+
+--- the normal Linux door (FUSE) is unavailable in this sandbox.
+--- The fallback mounter serves the same vault over WebDAV on loopback:
+
+$ nohup cryptomator-cli unlock --password: <redacted> --mounter=org.cryptomator.frontend.webdav.mount.FallbackMounter --loopbackPort=18091 vault > unlock-webdav.log 2>&1 &
+
+$ cat unlock-webdav.log
+[main] INFO  o.e.j.s.Server - jetty-10.0.25; built: 2025-03-13T00:02:39.342Z; git: 96cc25d2f26c3fb61444b801be87640e59cf380e; jvm 24+36 
+[main] INFO  o.e.j.s.h.ContextHandler - Started o.e.j.s.ServletContextHandler@63034ed1{/,null,AVAILABLE} 
+[main] INFO  o.e.j.s.AbstractConnector - Started ServerConnector@91c4a3f{HTTP/1.1, (http/1.1)}{localhost:18091} 
+Defaulting Uptime to NOIMPL due to (java.lang.UnsupportedOperationException) Implementation not available in this environment
+[main] INFO  o.e.j.s.Server - Started Server@e044b4a{STARTING}[10.0.25,sto=0] @-1ms 
+[main] INFO  o.c.f.w.WebDavServer - WebDavServer started. 
+[main] INFO  o.e.j.s.s.DefaultSessionIdManager - Session workerName=node0 
+[main] INFO  o.a.j.w.s.AbstractWebdavServlet - authenticate-header = Basic realm="Jackrabbit Webdav Server" 
+[main] INFO  o.a.j.w.s.AbstractWebdavServlet - csrf-protection = null 
+[main] INFO  o.a.j.w.s.AbstractWebdavServlet - createAbsoluteURI = true 
+[main] INFO  o.e.j.s.h.ContextHandler - Started o.e.j.s.ServletContextHandler@2b87581{/7d136c0f-9e31-45f3-b73f-29021f648818,null,AVAILABLE} 
+[main] INFO  o.c.f.w.s.WebDavServletController - WebDavServlet started: /7d136c0f-9e31-45f3-b73f-29021f648818 
+[main] INFO  o.c.f.w.m.AbstractMountBuilder - Mounting http://localhost:18091/7d136c0f-9e31-45f3-b73f-29021f648818... 
+[main] INFO  o.c.cli.Unlock - Unlocked and mounted vault successfully to http://localhost:18091/7d136c0f-9e31-45f3-b73f-29021f648818 
+
+$ curl -s -X PROPFIND -H "Depth: 1" http://127.0.0.1:18091/
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<D:multistatus xmlns:D="DAV:">
+<D:response>
+  <D:href>/</D:href>
+  <D:propstat>
+    <D:prop>
+      <D:iscollection>1</D:iscollection>
+      <D:resourcetype><D:collection/></D:resourcetype>
+    </D:prop>
+  </D:propstat>
+</D:response>
+</D:multistatus>
+
+--- appendix: the FUSE attempt from the top of this transcript, re-run
+--- after locking, with its full output (the vault itself unlocks fine;
+--- only the mount fails):
+
+$ export VAULT_PW=purple-lantern-42
+$ timeout 60 cryptomator-cli unlock --password: <redacted> --mounter=org.cryptomator.frontend.fuse.mount.LinuxFuseMountProvider --mountPoint=mnt vault
+fusermount3: fuse device not found, try 'modprobe fuse' first
+org.cryptomator.integrations.mount.MountFailedException: org.cryptomator.jfuse.api.FuseMountFailedException: fuse_mount failed
+	at org.cryptomator.frontend.fuse@5.0.5/org.cryptomator.frontend.fuse.mount.LinuxFuseMountProvider$LinuxFuseMountBuilder.mount(LinuxFuseMountProvider.java:137)
+Caused by: org.cryptomator.jfuse.api.FuseMountFailedException: fuse_mount failed
+	at org.cryptomator.jfuse.linux.amd64@0.7.3/org.cryptomator.jfuse.linux.amd64.FuseImpl.mount(FuseImpl.java:33)
+	at org.cryptomator.jfuse.api@0.7.3/org.cryptomator.jfuse.api.Fuse.mount(Fuse.java:126)
+	at org.cryptomator.frontend.fuse@5.0.5/org.cryptomator.frontend.fuse.mount.LinuxFuseMountProvider$LinuxFuseMountBuilder.mount(LinuxFuseMountProvider.java:134)
+	... 13 more
+(pipeline exit: 1)

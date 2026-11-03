@@ -1,0 +1,59 @@
+$ javac -cp "cli-dist/cryptomator-cli/lib/app/mods/*" -d classes CreateVault.java
+exit code: 0
+
+$ java -cp "classes:cli-dist/cryptomator-cli/lib/app/mods/*" CreateVault vault purple-lantern-42
+wrote masterkey.cryptomator (scrypt-wrapped masterkey)
+Exception in thread "main" java.lang.UnsupportedClassVersionError: org/cryptomator/cli/LogbackConfigurator has been compiled by a more recent version of the Java Runtime (class file version 68.0), this version of the Java Runtime only recognizes class file versions up to 65.0
+	at java.base/java.lang.ClassLoader.defineClass1(Native Method)
+	at java.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1027)
+	at java.base/java.security.SecureClassLoader.defineClass(SecureClassLoader.java:150)
+	at java.base/jdk.internal.loader.BuiltinClassLoader.defineClass(BuiltinClassLoader.java:862)
+	at java.base/jdk.internal.loader.BuiltinClassLoader.findClassOnClassPathOrNull(BuiltinClassLoader.java:760)
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClassOrNull(BuiltinClassLoader.java:681)
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:639)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526)
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:536)
+	at java.base/java.lang.Class.forName(Class.java:515)
+	at java.base/java.util.ServiceLoader$LazyClassPathLookupIterator.nextProviderClass(ServiceLoader.java:1217)
+	at java.base/java.util.ServiceLoader$LazyClassPathLookupIterator.hasNextService(ServiceLoader.java:1228)
+	at java.base/java.util.ServiceLoader$LazyClassPathLookupIterator.hasNext(ServiceLoader.java:1273)
+	at java.base/java.util.ServiceLoader$2.hasNext(ServiceLoader.java:1309)
+	at java.base/java.util.ServiceLoader$3.hasNext(ServiceLoader.java:1393)
+	at ch.qos.logback.classic.util.ClassicEnvUtil.loadFromServiceLoader(ClassicEnvUtil.java:47)
+	at ch.qos.logback.classic.util.ContextInitializer.autoConfig(ContextInitializer.java:82)
+	at ch.qos.logback.classic.util.ContextInitializer.autoConfig(ContextInitializer.java:67)
+	at ch.qos.logback.classic.spi.LogbackServiceProvider.initializeLoggerContext(LogbackServiceProvider.java:51)
+	at ch.qos.logback.classic.spi.LogbackServiceProvider.initialize(LogbackServiceProvider.java:44)
+	at org.slf4j.LoggerFactory.bind(LoggerFactory.java:201)
+	at org.slf4j.LoggerFactory.performInitialization(LoggerFactory.java:187)
+	at org.slf4j.LoggerFactory.getProvider(LoggerFactory.java:511)
+	at org.slf4j.LoggerFactory.getILoggerFactory(LoggerFactory.java:497)
+	at org.slf4j.LoggerFactory.getLogger(LoggerFactory.java:446)
+	at org.slf4j.LoggerFactory.getLogger(LoggerFactory.java:472)
+	at org.cryptomator.cryptolib.common.ReseedingSecureRandom.<clinit>(ReseedingSecureRandom.java:31)
+	at org.cryptomator.cryptolib.v1.CryptorProviderImpl.provide(CryptorProviderImpl.java:26)
+	at org.cryptomator.cryptolib.v1.CryptorProviderImpl.provide(CryptorProviderImpl.java:17)
+	at org.cryptomator.cryptofs.CryptoFileSystemProvider.initialize(CryptoFileSystemProvider.java:147)
+	at CreateVault.main(CreateVault.java:53)
+exit code: 1
+
+$ find vault | sort
+vault
+vault/masterkey.cryptomator
+
+$ cat vault/masterkey.cryptomator
+{
+  "version": 999,
+  "scryptSalt": "XC38/KrqOjA=",
+  "scryptCostParam": 32768,
+  "scryptBlockSize": 8,
+  "primaryMasterKey": "hc3xXuxceaWE2sX4eXApPTGj1+GbkPuS25zn7pIAXAAotRtcc6eUeQ==",
+  "hmacMasterKey": "smjISb0J7ALfHMMDtcMB9Q7lvHjjlXprth/rLGPePA7kcO3CE1WgyA==",
+  "versionMac": "P5jj/KZYBflZNICPJLFVbSm6jJWdScm8yMyWDX5ErvQ="
+}
+$ python3 - decode the vault.cryptomator token (header and claims, signature left as-is)
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: 'vault/vault.cryptomator'

@@ -1,0 +1,35 @@
+$ JARS=$(ls cli-dist/cryptomator-cli/lib/app/mods/*.jar | grep -v cryptomator-cli-0.6.2.jar | paste -sd:)   # library jars only, not the app jar
+
+$ javac -cp "$JARS" -d classes CreateVault.java
+exit code: 0
+
+$ java -cp "classes:$JARS" CreateVault vault purple-lantern-42
+wrote masterkey.cryptomator (scrypt-wrapped masterkey)
+02:24:09.719 [main] DEBUG org.cryptomator.cryptolib.common.ReseedingSecureRandom -- Seeding CSPRNG with 55 bytes...
+02:24:09.722 [main] DEBUG org.cryptomator.cryptolib.common.ReseedingSecureRandom -- Seeded CSPRNG.
+initialized vault contents (vault.cryptomator token + encrypted root under d/)
+exit code: 0
+
+$ find vault | sort
+vault
+vault/d
+vault/d/X6
+vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46
+vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/dirid.c9r
+vault/masterkey.cryptomator
+vault/vault.cryptomator
+
+$ cat vault/masterkey.cryptomator
+{
+  "version": 999,
+  "scryptSalt": "z3u2GOF8jPQ=",
+  "scryptCostParam": 32768,
+  "scryptBlockSize": 8,
+  "primaryMasterKey": "DUgcig0AMx5yFvjP23hieMAJEwAZyTMLy/qPaQDjE+mCeVRAaLsDIw==",
+  "hmacMasterKey": "8EQ9OyjeAcQ0pgLVRd8drjOwU2THR/H6RjCjUIWAemPdR+Ilg/joZA==",
+  "versionMac": "+I37WSNdhRfhrZfpnJlpRKmlP7N5WQdtFMTQtMpSNbk="
+}
+$ python3 - decode the vault.cryptomator token (header and claims, signature left as-is)
+header: {'kid': 'masterkeyfile:masterkey.cryptomator', 'alg': 'HS256', 'typ': 'JWT'}
+claims: {'jti': '34a7b303-6f45-44a0-8faa-3f6713f30d3b', 'format': 8, 'cipherCombo': 'SIV_CTRMAC', 'shorteningThreshold': 220}
+signature: 3Mop5OIsRPCFdnFLnudz... (base64url, 43 chars)

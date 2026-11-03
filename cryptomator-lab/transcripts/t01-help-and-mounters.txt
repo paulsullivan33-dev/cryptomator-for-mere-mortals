@@ -1,0 +1,76 @@
+$ cryptomator-cli --help
+Usage: cryptomator-cli [-h] [-v] [-V] [COMMAND]
+Unlocks a cryptomator vault and mounts it into the system.
+  -h, --help      Show this help message and exit.
+  -v, --verbose   Activate verbose mode
+  -V, --version   Print version information and exit.
+Commands:
+  unlock         Unlocks a vault
+  list-mounters  Lists available mounters
+  help           Display help information about the specified command.
+
+$ cryptomator-cli list-mounters
+org.cryptomator.frontend.fuse.mount.LinuxFuseMountProvider
+org.cryptomator.frontend.webdav.mount.LinuxGioMounter
+org.cryptomator.frontend.webdav.mount.FallbackMounter
+
+$ cryptomator-cli unlock --help
+Usage:
+
+Unlocks a vault
+
+cryptomator-cli unlock [-h] [-v] [-V]
+                       [--maxCleartextNameLength=<maxCleartextNameLength>]
+                       (--password:stdin | --password:
+                       env=<passphraseEnvironmentVariable> | --password:
+                       file=<passphraseFile>)
+                       ([--mountPoint=/path/to/mount/point]
+                       [--volumeName=<volumeName>] [--volumeId=<volumeId>]
+                       [-mop=<mountOptions>]...
+                       [--loopbackHostName=<loopbackHostName>]
+                       [--loopbackPort=<loopbackPort>] --mounter=fully.
+                       qualified.ClassName) /path/to/vaultDirectory
+
+Description:
+
+Unlocks and mounts the given cryptomator vault, identified by the path to the
+vault directory.The unlocked vault is mounted into the local filesystem by the
+specified mounter.For a list of available mounters, use the `list-mounters`
+subcommand.
+
+Parameters:
+      /path/to/vaultDirectory
+                         Path to the vault directory
+
+Options:
+  -h, --help             Show this help message and exit.
+      --loopbackHostName=<loopbackHostName>
+                         Name of the loopback address.
+      --loopbackPort=<loopbackPort>
+                         Port used at the loopback address.
+      --maxCleartextNameLength=<maxCleartextNameLength>
+                         Maximum cleartext filename length limit of created
+                           files. Remark: If this limit is greater than the
+                           shortening threshold, it does not have any effect.
+      -mop, --mountOption=<mountOptions>
+                         Additional mount option. For a list of mount options,
+                           see the WinFsp, macFUSE, FUSE-T and libfuse
+                           documentation.
+      --mounter=fully.qualified.ClassName
+                         Name of the mounter to use
+      --mountPoint=/path/to/mount/point
+                         Path to the mount point. Requirements for mount point
+                           depend on the chosen mount service
+      --password:env=<passphraseEnvironmentVariable>
+                         Name of the environment variable containing the
+                           passphrase
+      --password:file=<passphraseFile>
+                         Path of the file containing the passphrase. The
+                           password file must be utf-8 encoded
+      --password:stdin   Passphrase, read from STDIN
+  -v, --verbose          Activate verbose mode
+  -V, --version          Print version information and exit.
+      --volumeId=<volumeId>
+                         Id of the virtual volume.
+      --volumeName=<volumeName>
+                         Name of the virtual volume.

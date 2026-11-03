@@ -1,0 +1,61 @@
+$ javac -cp "cli-dist/cryptomator-cli/lib/app/mods/*" -d classes CreateVault.java
+exit code: 0
+
+$ java -cp "classes:cli-dist/cryptomator-cli/lib/app/mods/*" CreateVault vault purple-lantern-42
+Exception in thread "main" java.lang.NullPointerException: Cannot invoke "org.cryptomator.cryptolib.api.CryptorProvider$Scheme.name()" because "this.cipherCombo" is null
+	at org.cryptomator.cryptofs.VaultConfig.toToken(VaultConfig.java:78)
+	at CreateVault.main(CreateVault.java:40)
+exit code: 1
+
+$ find vault | sort
+vault
+vault/masterkey.cryptomator
+
+$ cat vault/masterkey.cryptomator
+{
+  "version": 999,
+  "scryptSalt": "PHwCCc31VG4=",
+  "scryptCostParam": 32768,
+  "scryptBlockSize": 8,
+  "primaryMasterKey": "uKgDClLVUI1wfJZ3H/4ItONHdYLbhecXt42egmRCg5CwU1vjUtzOSw==",
+  "hmacMasterKey": "z3/UQH3rMhWKm1n8I91Xc1t8dzUmRmMOi7/Z75agsOI2GVAU04c2NA==",
+  "versionMac": "FWSs0sCcR5weFCi2sSB7cSoMahHZfC4JTf40kRX5gs8="
+}
+$ python3 - decode the vault.cryptomator token (header and claims, signature left as-is)
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: 'vault/vault.cryptomator'
+
+--- the builder leaves the cipher combo unset in cryptofs 2.8.0; set it
+--- explicitly (SIV_CTRMAC, threshold 220 - the values the desktop uses),
+--- discard the half-created vault, and run again:
+
+$ rm -rf vault
+
+$ javac -cp "cli-dist/cryptomator-cli/lib/app/mods/*" -d classes CreateVault.java && java -cp "classes:cli-dist/cryptomator-cli/lib/app/mods/*" CreateVault vault purple-lantern-42
+created vault in vault
+vault format:  8
+cipher combo:  SIV_CTRMAC
+shortening threshold: 220
+vault config id: 67f328c6-e4bf-4dea-bcce-39dcb00d4e15
+exit code: 0
+
+$ find vault | sort
+vault
+vault/masterkey.cryptomator
+vault/vault.cryptomator
+
+$ cat vault/masterkey.cryptomator
+{
+  "version": 999,
+  "scryptSalt": "ir0t7gsq1pI=",
+  "scryptCostParam": 32768,
+  "scryptBlockSize": 8,
+  "primaryMasterKey": "+S/MgLcbFctCmzsf/6eLlKJwIXA+26lqpgMFeyS6Oi71jSQY1a9Nsg==",
+  "hmacMasterKey": "hgiZsX0nIOHtBWqE28bM9GtCE86TorUa1qwCXWSpPlfOwCFKvjo21g==",
+  "versionMac": "dakgDlm9bH6zZp5LieQ0DSWUKc4rGKA3EIj8pwOYgg0="
+}
+$ python3 - decode the vault.cryptomator token (header and claims, signature left as-is)
+header: {'kid': 'masterkeyfile:masterkey.cryptomator', 'alg': 'HS256', 'typ': 'JWT'}
+claims: {'jti': '67f328c6-e4bf-4dea-bcce-39dcb00d4e15', 'format': 8, 'cipherCombo': 'SIV_CTRMAC', 'shorteningThreshold': 220}
+signature: 4GugrAtC9iajnBibL6jS... (base64url, 43 chars)

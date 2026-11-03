@@ -1,0 +1,62 @@
+$ find vault | sort
+vault
+vault/d
+vault/d/7X
+vault/d/7X/SLCHICG5CVCCVJW6EF7ZF2BXST2BSK
+vault/d/7X/SLCHICG5CVCCVJW6EF7ZF2BXST2BSK/V9grweqazMopx9qsz1ioz1UYP-NxqsCrjOE=.c9r
+vault/d/7X/SLCHICG5CVCCVJW6EF7ZF2BXST2BSK/dirid.c9r
+vault/d/X6
+vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46
+vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/25rsnx3QH3p68Ru1k3ly1FrOcbY4aEUJnE1LOsxqpQ==.c9r
+vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/dirid.c9r
+vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/v4dCc8wyPfU5j9kdicAscvS-KbhvfcJyu5nNA_fl.c9r
+vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/v4dCc8wyPfU5j9kdicAscvS-KbhvfcJyu5nNA_fl.c9r/dir.c9r
+vault/masterkey.cryptomator
+vault/vault.cryptomator
+vault/vault.cryptomator.9ADD23A3.bkup
+
+$ grep -r "field-notes" vault/ ; echo "exit code: $?"   (the cleartext filename)
+exit code: 1
+$ grep -r "garden-journal" vault/ ; echo "exit code: $?"   (the cleartext folder name)
+exit code: 1
+$ grep -r "QUIETRIVER-9274" vault/ ; echo "exit code: $?"   (the marker sentence inside field-notes.txt)
+exit code: 1
+$ grep -r "rain gauge" vault/ ; echo "exit code: $?"   (ordinary words from the file)
+exit code: 1
+
+$ ls -la vault/d/*/*/   (sizes: two ciphertext files and the dir files)
+vault/d/7X/SLCHICG5CVCCVJW6EF7ZF2BXST2BSK/:
+total 8
+drwxrwx--- 1 root root  98 Nov  3 02:24 .
+drwxrwx--- 1 root root  60 Nov  3 02:24 ..
+-rw-rw---- 1 root root 273 Nov  3 02:24 V9grweqazMopx9qsz1ioz1UYP-NxqsCrjOE=.c9r
+-rw-rw---- 1 root root 172 Nov  3 02:24 dirid.c9r
+
+vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/:
+total 8
+drwxrwx--- 1 root root 202 Nov  3 02:24 .
+drwxrwx--- 1 root root  60 Nov  3 02:24 ..
+-rw-rw---- 1 root root 335 Nov  3 02:24 25rsnx3QH3p68Ru1k3ly1FrOcbY4aEUJnE1LOsxqpQ==.c9r
+-rw-rw---- 1 root root  88 Nov  3 02:24 dirid.c9r
+drwxrwx--- 1 root root  14 Nov  3 02:24 v4dCc8wyPfU5j9kdicAscvS-KbhvfcJyu5nNA_fl.c9r
+
+$ xxd vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/v4dCc8wyPfU5j9kdicAscvS-KbhvfcJyu5nNA_fl.c9r | head -5   (the first bytes of an encrypted file)
+/bin/bash: line 19: xxd: command not found
+
+$ file vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/v4dCc8wyPfU5j9kdicAscvS-KbhvfcJyu5nNA_fl.c9r
+vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/v4dCc8wyPfU5j9kdicAscvS-KbhvfcJyu5nNA_fl.c9r: directory
+
+--- xxd is not installed in this sandbox; the same look with od.
+--- The name picked above was the folder entry (a directory whose name
+--- ends in .c9r); this is the 335-byte file itself (field-notes.txt,
+--- 199 bytes of cleartext):
+
+$ od -A x -t x1z vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/25rsnx3QH3p68Ru1k3ly1FrOcbY4aEUJnE1LOsxqpQ==.c9r | head -5
+000000 8e c4 39 19 31 6a a9 b9 94 45 7e 08 0a 90 fb cf  >..9.1j...E~.....<
+000010 94 7b 1e a1 13 16 a7 38 ae a0 f9 4b b8 30 63 fa  >.{.....8...K.0c.<
+000020 7c 86 46 61 80 4c 34 20 60 99 a5 ae e1 bf 27 01  >|.Fa.L4 `.....'.<
+000030 8d d7 b4 0d 70 08 d0 63 3d 49 19 1a 32 49 ca bd  >....p..c=I..2I..<
+000040 80 b1 86 58 f2 f8 16 31 ba d6 7a 7f c7 dd 67 88  >...X...1..z...g.<
+
+$ file vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/25rsnx3QH3p68Ru1k3ly1FrOcbY4aEUJnE1LOsxqpQ==.c9r
+vault/d/X6/XEUD27YX56LLTPKIXDWLICISQARN46/25rsnx3QH3p68Ru1k3ly1FrOcbY4aEUJnE1LOsxqpQ==.c9r: data
